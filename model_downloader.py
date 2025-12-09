@@ -54,3 +54,7 @@ class model_downloader:
     def get_data_model(self,key:str):
         data = self.__dictModel[key]
         return data["name"],data["url"],data["description"]
+
+    def get_model_download(self):
+        with open(self.__modelDownloadFile, 'r' , encoding='utf-8') as openfile:
+            return list(json.load(openfile)["models"])
