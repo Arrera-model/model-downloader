@@ -7,7 +7,7 @@ class model_downloader:
     def __init__(self):
 
         self.__dictModel = {"leger-gemma":{"name":"Gemma 2B Q5_K_M",
-                                           "url":"https://huggingface.co/ironlanderl/gemma-2-2b-it-Q5_K_M-GGUF/blob/main/gemma-2-2b-it-q5_k_m.gguf",
+                                           "url":"https://huggingface.co/ironlanderl/gemma-2-2b-it-Q5_K_M-GGUF/resolve/main/gemma-2-2b-it-q5_k_m.gguf?download=true",
                                            "description":"Petit modèle Google Gemma, parfait pour tourner sur un PC sans carte graphique ou NPU."},
                             "leger-llama":{"name":"LLaMA 3.2 1B Q4_K_M",
                                            "url":"https://huggingface.co/hugging-quants/Llama-3.2-1B-Instruct-Q4_K_M-GGUF/blob/main/llama-3.2-1b-instruct-q4_k_m.gguf",
@@ -65,20 +65,27 @@ class model_downloader:
             raise ValueError("Modele deja telecharger")
 
         try :
-            response = requests.get(url)
+            response = requests.get(url, stream=True)
 
             if response.status_code == 200:
-                with open(self.__modelDir+key+".gguf", 'wb') as f:
-                    f.write(response.content)
+                full_path = self.__modelDir + key + ".gguf"
 
-                openfile = open(self.__modelDownloadFile, 'r' , encoding='utf-8')
-                dict = json.load(openfile)
-                openfile.close()
-                writeFile = open(self.__modelDownloadFile, 'w', encoding='utf-8')
-                dict["models"].append(key)
-                json.dump(dict,writeFile,indent=2)
-                writeFile.close()
-            return True
+                with open(full_path, 'wb') as f:
+                    # On télécharge par paquets de 8 Ko (ou plus)
+                    for chunk in response.iter_content(chunk_size=8192):
+                        if chunk:
+                            f.write(chunk)
+
+                    openfile = open(self.__modelDownloadFile, 'r' , encoding='utf-8')
+                    dict = json.load(openfile)
+                    openfile.close()
+                    writeFile = open(self.__modelDownloadFile, 'w', encoding='utf-8')
+                    dict["models"].append(key)
+                    json.dump(dict,writeFile,indent=2)
+                    writeFile.close()
+                return True
+            else :
+                raise ValueError("Erreur lors du telechargement")
         except Exception as e :
             raise ValueError(e)
 
