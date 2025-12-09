@@ -58,3 +58,26 @@ class model_downloader:
     def get_model_download(self):
         with open(self.__modelDownloadFile, 'r' , encoding='utf-8') as openfile:
             return list(json.load(openfile)["models"])
+
+    def download_model(self,key:str):
+        url = self.get_data_model(key)[1]
+        if key in self.get_model_download():
+            raise ValueError("Modele deja telecharger")
+
+        try :
+            response = requests.get(url)
+
+            if response.status_code == 200:
+                with open(self.__modelDir+key+".gguf", 'wb') as f:
+                    f.write(response.content)
+
+                openfile = open(self.__modelDownloadFile, 'r' , encoding='utf-8')
+                dict = json.load(openfile)
+                openfile.close()
+                writeFile = open(self.__modelDownloadFile, 'w', encoding='utf-8')
+                dict["models"] = key
+                json.dump(dict,writeFile,indent=2)
+                writeFile.close()
+            return True
+        except Exception as e :
+            raise ValueError(e)
