@@ -75,9 +75,15 @@ class model_downloader:
                 dict = json.load(openfile)
                 openfile.close()
                 writeFile = open(self.__modelDownloadFile, 'w', encoding='utf-8')
-                dict["models"] = key
+                dict["models"].append(key)
                 json.dump(dict,writeFile,indent=2)
                 writeFile.close()
             return True
         except Exception as e :
             raise ValueError(e)
+
+    def get_path_model(self,key:str):
+        if key in self.get_model_download():
+            return self.__modelDir+key+".gguf"
+        else :
+            raise ValueError("Modele non telecharger")
