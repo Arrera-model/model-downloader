@@ -47,3 +47,10 @@ class model_downloader:
             path.parent.mkdir(parents=True, exist_ok=True)
             with path.open("x", encoding="utf-8") as f:
                 json.dump({"models": []}, f, ensure_ascii=False, indent=2)
+
+    def get_model_list(self):
+        return list(self.__dictModel.keys())
+
+    def get_data_model(self,key:str):
+        data = self.__dictModel[key]
+        return data["name"],data["url"],data["description"]
