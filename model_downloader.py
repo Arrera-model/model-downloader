@@ -62,7 +62,7 @@ class model_downloader:
     def download_model(self,key:str):
         url = self.get_data_model(key)[1]
         if key in self.get_model_download():
-            raise ValueError("Modele deja telecharger")
+            return False
 
         try :
             response = requests.get(url, stream=True)
@@ -85,12 +85,12 @@ class model_downloader:
                     writeFile.close()
                 return True
             else :
-                raise ValueError("Erreur lors du telechargement")
+                return False
         except Exception as e :
-            raise ValueError(e)
+            return False
 
     def get_path_model(self,key:str):
         if key in self.get_model_download():
             return self.__modelDir+key+".gguf"
         else :
-            raise ValueError("Modele non telecharger")
+            return None
